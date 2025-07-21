@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+from datetime import datetime
 from dataclasses import dataclass, field
 from functools import wraps
 from typing import Any, Dict, Optional, Union
@@ -34,7 +35,22 @@ def validate_or_badevent(
     try:
         validate_json(parsed_dict, schema)
     except (ValidationError, SchemaError) as e:
-        logger.warning(f"Error validating event: {str(e)}")
+        keys = {
+            "event_id":          lambda x: f"event_id:  {x}",
+            "room_id":           lambda x: f"room_id:   {x}",
+            "sender":            lambda x: f"sender:    {x}",
+            "origin_server_ts":  lambda x: f"date:      {datetime.fromtimestamp(x / 1000).isoformat()}"
+                                           if isinstance(x, int) else "invalid",
+        }
+
+        logger.warning(
+            f"Error validating: {str(e)}\n" +
+            "\n  ".join((
+                "For event:",
+                *(v(parsed_dict[k]) for k, v in keys.items() if k in parsed_dict)
+            ))
+        )
+
         try:
             return BadEvent.from_dict(parsed_dict)
         except KeyError:
