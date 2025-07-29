@@ -2444,6 +2444,7 @@ class AsyncClient(Client):
         power_level_override: Optional[Dict[str, Any]] = None,
         predecessor: Optional[Dict[str, Any]] = None,
         space: bool = False,
+        additional_creators: Optional[List[str]] = None,
     ) -> Union[RoomCreateResponse, RoomCreateError]:
         """Create a new room.
 
@@ -2514,6 +2515,10 @@ class AsyncClient(Client):
                 ``room_id``: ``!oldroom:example.org``
 
             space (bool): Create as a Space (defaults to False).
+
+            additional_creators (list): a list of user id to give the same
+                (infinite) power level as the sender of the event.
+                Applicable to room versions >= 12.
         """
 
         method, path, data = Api.room_create(
@@ -2532,6 +2537,7 @@ class AsyncClient(Client):
             power_level_override=power_level_override,
             predecessor=predecessor,
             space=space,
+            additional_creators=additional_creators,
         )
 
         return await self._send(RoomCreateResponse, method, path, data)
