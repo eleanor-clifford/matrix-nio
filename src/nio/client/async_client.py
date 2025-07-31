@@ -4105,7 +4105,7 @@ class AsyncClient(Client):
             user_power_level = power_levels.content["users"][who_am_i.user_id]
         except KeyError:
             user_power_level = power_levels.content.get("users_default", 0)
-        except:
+        except Exception:
             return ErrorResponse("Couldn't get user power levels")
 
         try:
@@ -4117,7 +4117,7 @@ class AsyncClient(Client):
                 event_power_level = power_levels.content.get("state_default", 50)
             else:
                 return ErrorResponse(f"event_type {event_type} unknown")
-        except:
+        except Exception:
             return ErrorResponse("Couldn't get event power levels")
 
         return user_power_level >= event_power_level
@@ -4139,7 +4139,7 @@ class AsyncClient(Client):
             user_power_level = power_levels.content["users"][who_am_i.user_id]
         except KeyError:
             user_power_level = power_levels.content.get("users_default", 0)
-        except:
+        except Exception:
             return ErrorResponse("Couldn't get user power levels")
 
         try:
