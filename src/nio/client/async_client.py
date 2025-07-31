@@ -4119,6 +4119,7 @@ class AsyncClient(Client):
 
         return user_power_level >= event_power_level
 
+    @logged_in_async
     async def has_permission(
         self, room_id: str, permission_type: str
     ) -> Union[bool, ErrorResponse]:
@@ -4126,7 +4127,7 @@ class AsyncClient(Client):
 
         # TODO: why does this function use whoami instead of self.user_id?
         # Does that also mean that it shouldn't use self.creators?
-        if who_am_i.user_id in self.creators:
+        if who_am_i.user_id in self.rooms[room_id].creators:
             return True
 
         power_levels = await self.room_get_state_event(room_id, "m.room.power_levels")
@@ -4134,8 +4135,8 @@ class AsyncClient(Client):
         try:
             user_power_level = power_levels.content["users"][who_am_i.user_id]
         except KeyError:
-            user_power_level = power_levels.content["users_default"]
-        else:
+            user_power_level = power_levels.content.get("users_default", 0)
+        except:
             return ErrorResponse("Couldn't get user power levels")
 
         try:
